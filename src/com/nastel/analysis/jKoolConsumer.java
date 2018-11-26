@@ -36,7 +36,13 @@ public class jKoolConsumer  extends KafkaConsumer<String, String> {
 	}
 	
 	public String jkPoll(String timeout) {
-		return (super.poll(Long.parseLong(timeout)).iterator().next().value());
+		try {
+			return (super.poll(Long.parseLong(timeout)).iterator().next().value());
+		}
+		catch (Exception e)
+		{
+			return null;
+		}
 	}
 
 }
