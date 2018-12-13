@@ -20,36 +20,61 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.log4j.Logger;
 
 
 public class jKoolConsumer  extends KafkaConsumer<String, String> {
-
+	private String topic;
+	private final Logger logger;
+	
 	public jKoolConsumer(Properties properties) {
 		super(properties);
+		logger = Logger.getLogger(jKoolConsumer.class);
+		logger.info("Consumer created");
 	}
 
 	public void jkSubscribe(String topic) {
 		List<String> topics = new ArrayList<String>();
+		this.topic = topic;
 		topics.add(topic);
 		super.subscribe(topics);
+		logger.info("Successful subscribe");
 	}
 	
 	public String jkPoll(String timeout) {
-		try {
-			return (super.poll(Long.parseLong(timeout)).iterator().next().value());
-		}
-		catch (Exception e)
+		while (true)
 		{
-			return null;
+			try 
+			{
+				ConsumerRecords<String, String> records = super.poll(Long.parseLong(timeout));
+				if (records != null && records.count() > 0)
+				{
+					logger.info("Successful poll");
+					return (records.iterator().next().value());
+				}
+				else
+					return null;
+			}
+			catch (Exception ke)
+			{
+				try 
+				{
+					super.close();
+					jkSubscribe(topic);
+				}
+				catch (Exception e)
+				{
+					try {
+						logger.error("Error in jKoolConsumer {}", e);
+						Thread.sleep(30000);
+					}
+					catch (InterruptedException ie) {
+						logger.error("Error in jKoolConsumer {}", ie);
+					}
+				}
+			}
 		}
 	}
-
 }
-
-
-
-	
-	
-
-
