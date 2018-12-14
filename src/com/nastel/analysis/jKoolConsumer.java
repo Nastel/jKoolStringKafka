@@ -44,37 +44,23 @@ public class jKoolConsumer  extends KafkaConsumer<String, String> {
 	}
 	
 	public String jkPoll(String timeout) {
-		while (true)
-		{
 			try 
 			{
 				ConsumerRecords<String, String> records = super.poll(Long.parseLong(timeout));
 				if (records != null && records.count() > 0)
 				{
 					logger.info("Successful poll");
-					return (records.iterator().next().value());
+					return (records.iterator().next().value());  
 				}
 				else
+				{
+					logger.info("No records read.");
+					return null;
+				}
+			}
+			catch (Exception e) {
+					logger.error("Error in jkPoll: {}", e);
 					return null;
 			}
-			catch (Exception ke)
-			{
-				try 
-				{
-					super.close();
-					jkSubscribe(topic);
-				}
-				catch (Exception e)
-				{
-					try {
-						logger.error("Error in jKoolConsumer {}", e);
-						Thread.sleep(30000);
-					}
-					catch (InterruptedException ie) {
-						logger.error("Error in jKoolConsumer {}", ie);
-					}
-				}
-			}
-		}
 	}
 }
