@@ -26,7 +26,6 @@ import org.apache.log4j.Logger;
 
 
 public class jKoolConsumer  extends KafkaConsumer<String, String> {
-	private String topic;
 	private final Logger logger;
 	
 	public jKoolConsumer(Properties properties) {
@@ -37,7 +36,6 @@ public class jKoolConsumer  extends KafkaConsumer<String, String> {
 
 	public void jkSubscribe(String topic) {
 		List<String> topics = new ArrayList<String>();
-		this.topic = topic;
 		topics.add(topic);
 		super.subscribe(topics);
 		logger.info("Successful subscribe");
@@ -48,15 +46,9 @@ public class jKoolConsumer  extends KafkaConsumer<String, String> {
 			{
 				ConsumerRecords<String, String> records = super.poll(Long.parseLong(timeout));
 				if (records != null && records.count() > 0)
-				{
-					logger.info("Successful poll");
 					return (records.iterator().next().value());  
-				}
 				else
-				{
-					logger.info("No records read.");
 					return null;
-				}
 			}
 			catch (Exception e) {
 					logger.error("Error in jkPoll: {}", e);
